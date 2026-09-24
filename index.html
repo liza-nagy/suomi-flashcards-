@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suomi Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --snow: #f4f8fb; --blue: #003580; --sky: #cfe0f1; --muted: #4f6b85; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--snow); color: var(--blue);
+    font-family: "Outfit", system-ui, sans-serif; line-height: 1.5;
+  }
+  main { max-width: 560px; margin: 0 auto; padding: 48px 20px 64px; }
+  h1 { font-size: clamp(2.2rem, 8vw, 3.5rem); line-height: 1; margin: 0 0 8px; font-weight: 800; }
+  .intro { color: var(--muted); margin: 0 0 28px; }
+  .count { color: var(--muted); margin: 0 0 8px; }
+  #card {
+    width: 100%; min-height: 220px; border-radius: 8px; border: 3px solid var(--blue);
+    background: var(--blue); color: #fff; cursor: pointer; padding: 24px;
+    font: inherit; font-size: clamp(2rem, 9vw, 3rem); font-weight: 800;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  }
+  #card.back { background: #fff; color: var(--blue); }
+  #card small { font-size: 1rem; font-weight: 400; opacity: 0.8; }
+  #card:focus-visible, .row button:focus-visible { outline: 3px solid #f2a900; outline-offset: 3px; }
+  .row { display: flex; gap: 10px; margin-top: 14px; }
+  .row button {
+    flex: 1; font: inherit; font-weight: 600; cursor: pointer; padding: 12px;
+    border-radius: 8px; border: 2px solid var(--blue); background: transparent; color: var(--blue);
+  }
+  .row button:hover { background: var(--sky); }
+  footer { margin-top: 36px; color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Suomi Flashcards</h1>
+  <p class="intro">Learn a few Finnish words before you land in Helsinki. Click the card to see what it means.</p>
+
+  <p class="count" id="count"></p>
+  <button id="card" aria-live="polite"></button>
+
+  <div class="row">
+    <button id="prev">Back</button>
+    <button id="shuffle">Shuffle</button>
+    <button id="next">Next</button>
+  </div>
+
+  <footer>Add your own words in <code>index.html</code>, in the WORDS list.</footer>
+</main>
+
+<script>
+  // Each line is: ["Finnish", "English"]. Add your own!
+  const WORDS = [
+    // Greetings and basics
+    ["Hei", "Hi"],
+    ["Moi", "Hi (casual)"],
+    ["Moi moi", "Bye"],
+    ["Näkemiin", "Goodbye (formal)"],
+    ["Kiitos", "Thank you"],
+    ["Kiitos paljon", "Thank you very much"],
+    ["Ole hyvä", "You're welcome / Here you go"],
+    ["Anteeksi", "Sorry / Excuse me"],
+    ["Kyllä", "Yes"],
+    ["Ei", "No"],
+    ["Ehkä", "Maybe"],
+    ["Mitä kuuluu?", "How are you?"],
+    ["Hyvää huomenta", "Good morning"],
+    ["Hyvää iltaa", "Good evening"],
+    ["Hyvää yötä", "Good night"],
+    ["Tervetuloa", "Welcome"],
+    ["Hauska tutustua", "Nice to meet you"],
+    ["Minun nimeni on", "My name is"],
+    ["Puhutko englantia?", "Do you speak English?"],
+    ["En ymmärrä", "I don't understand"],
+    ["Onnea", "Good luck"],
+    ["Kippis", "Cheers"],
+
+    // Numbers
+    ["Yksi", "One"],
+    ["Kaksi", "Two"],
+    ["Kolme", "Three"],
+    ["Neljä", "Four"],
+    ["Viisi", "Five"],
+    ["Kuusi", "Six"],
+    ["Seitsemän", "Seven"],
+    ["Kahdeksan", "Eight"],
+    ["Yhdeksän", "Nine"],
+    ["Kymmenen", "Ten"],
+
+    // Food and drink
+    ["Kahvi", "Coffee"],
+    ["Tee", "Tea"],
+    ["Vesi", "Water"],
+    ["Maito", "Milk"],
+    ["Olut", "Beer"],
+    ["Leipä", "Bread"],
+    ["Juusto", "Cheese"],
+    ["Kala", "Fish"],
+    ["Lohi", "Salmon"],
+    ["Peruna", "Potato"],
+    ["Mustikka", "Blueberry"],
+    ["Suklaa", "Chocolate"],
+    ["Jäätelö", "Ice cream"],
+    ["Pulla", "Sweet cardamom bun"],
+    ["Karjalanpiirakka", "Karelian pie"],
+    ["Aamiainen", "Breakfast"],
+    ["Ruoka", "Food"],
+
+    // Nature and weather
+    ["Sauna", "Sauna"],
+    ["Sisu", "Grit: staying strong when things get hard"],
+    ["Järvi", "Lake"],
+    ["Meri", "Sea"],
+    ["Saari", "Island"],
+    ["Metsä", "Forest"],
+    ["Lumi", "Snow"],
+    ["Talvi", "Winter"],
+    ["Kesä", "Summer"],
+    ["Aurinko", "Sun"],
+    ["Kuu", "Moon"],
+    ["Revontulet", "Northern lights"],
+    ["Poro", "Reindeer"],
+    ["Karhu", "Bear"],
+    ["Susi", "Wolf"],
+    ["Kylmä", "Cold"],
+    ["Kuuma", "Hot"],
+
+    // Around town
+    ["Suomi", "Finland"],
+    ["Kaupunki", "City"],
+    ["Koti", "Home"],
+    ["Kauppa", "Shop"],
+    ["Koulu", "School"],
+    ["Juna", "Train"],
+    ["Bussi", "Bus"],
+    ["Ratikka", "Tram"],
+    ["Lentokenttä", "Airport"],
+    ["Ystävä", "Friend"],
+    ["Perhe", "Family"],
+    ["Kissa", "Cat"],
+    ["Koira", "Dog"],
+
+    // Hackathon words
+    ["Tiimi", "Team"],
+    ["Idea", "Idea"],
+    ["Tietokone", "Computer"],
+    ["Ohjelmointi", "Programming"],
+    ["Työ", "Work"],
+    ["Kirja", "Book"]
+  ];
+
+  let order = WORDS.slice();
+  let i = 0;
+  let showEnglish = false;
+
+  const card = document.getElementById("card");
+  const count = document.getElementById("count");
+
+  function render() {
+    const pair = order[i];
+    card.className = showEnglish ? "back" : "";
+    card.innerHTML = (showEnglish ? pair[1] : pair[0]) +
+      "<small>" + (showEnglish ? "Click to see Finnish" : "Click to see English") + "</small>";
+    count.textContent = "Card " + (i + 1) + " of " + order.length;
+  }
+
+  function go(step) {
+    i = (i + step + order.length) % order.length;
+    showEnglish = false;
+    render();
+  }
+
+  function shuffle() {
+    for (let a = order.length - 1; a > 0; a--) {
+      const b = Math.floor(Math.random() * (a + 1));
+      [order[a], order[b]] = [order[b], order[a]];
+    }
+    i = 0;
+    showEnglish = false;
+    render();
+  }
+
+  card.addEventListener("click", () => { showEnglish = !showEnglish; render(); });
+  document.getElementById("next").addEventListener("click", () => go(1));
+  document.getElementById("prev").addEventListener("click", () => go(-1));
+  document.getElementById("shuffle").addEventListener("click", shuffle);
+  render();
+</script>
+</body>
+</html>
